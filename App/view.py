@@ -47,11 +47,9 @@ def printMenu():
 
 catalog = None
 
-
 """
 Menu principal
 """
-
 
 def thread_cycle():
     while True:
