@@ -39,6 +39,9 @@ los mismos.
 
 # Construccion de modelos
 
+def init():
+    pass
+
 # Funciones para agregar informacion al catalogo
 
 # Funciones para creacion de datos

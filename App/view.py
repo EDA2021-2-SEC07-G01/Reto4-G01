@@ -20,12 +20,14 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-import config as cf
 import sys
-import controller
-from DISClib.ADT import list as lt
 assert cf
-
+import config as cf
+import threading
+import time
+from App import controller
+from DISClib.ADT import list as lt
+from DISClib.ADT import stack
 
 """
 La vista se encarga de la interacción con el usuario
@@ -37,22 +39,51 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2- Encontrar puntos de interconexión aérea")
+    print("3- Encontrar clústeres de tráfico aéreo")
+    print("4- Encontrar ruta más corta entre ciudades")
+    print("5- Utilizar millas de viajero")
+    print("6- Cuantificar efecto aeropuerto cerrado")
 
 catalog = None
+
 
 """
 Menu principal
 """
-while True:
-    printMenu()
-    inputs = input('Seleccione una opción para continuar\n')
-    if int(inputs[0]) == 1:
-        print("Cargando información de los archivos ....")
 
-    elif int(inputs[0]) == 2:
-        pass
 
-    else:
-        sys.exit(0)
-sys.exit(0)
+def thread_cycle():
+    while True:
+        printMenu()
+        inputs = input('Seleccione una opción para continuar\n')
+
+        if int(inputs[0]) == 1:
+            print("Cargando información de los archivos ....")
+            catalog = controller.init()
+
+        elif int(inputs[0]) == 2:
+            pass
+
+        elif int(inputs[0]) == 3:
+            pass
+
+        elif int(inputs[0]) == 4:
+            pass
+
+        elif int(inputs[0]) == 5:
+            pass
+
+        elif int(inputs[0]) == 6:
+            pass
+
+        else:
+            sys.exit(0)
+    sys.exit(0)
+
+if __name__ == "__main__":
+    threading.stack_size(67108864)  # 64MB stack
+    sys.setrecursionlimit(2 ** 20)
+    thread = threading.Thread(target=thread_cycle)
+    thread.start()
+
