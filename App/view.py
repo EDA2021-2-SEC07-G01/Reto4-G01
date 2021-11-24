@@ -21,13 +21,14 @@
  """
 
 import sys
-assert cf
 import config as cf
+assert cf
 import threading
 import time
 from App import controller
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack
+from DISClib.ADT.graph import gr
 
 """
 La vista se encarga de la interacción con el usuario
@@ -59,6 +60,8 @@ def thread_cycle():
         if int(inputs[0]) == 1:
             print("Cargando información de los archivos ....")
             catalog = controller.init()
+            controller.loadCSVs(catalog)
+            print(catalog)
 
         elif int(inputs[0]) == 2:
             pass
