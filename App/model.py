@@ -41,7 +41,7 @@ los mismos.
 # Construccion de modelos
 
 def init(): #Comentar
-    """ Inicializa el analizador
+    """ Inicializa el catálogo
 
    stops: Tabla de hash para guardar los vertices del grafo
    connections: Grafo para representar las rutas entre estaciones
@@ -54,7 +54,8 @@ def init(): #Comentar
                     'airports': None,
                     'cities': None,
                     'digraph': None,
-                    'undigraph': None
+                    'undigraph': None,
+                    'edgeMap': None
                     }
 
         catalog['airports'] = mp.newMap(numelements=41001,
@@ -63,13 +64,16 @@ def init(): #Comentar
         catalog['cities'] = mp.newMap(numelements=14000,
                                      maptype='PROBING')
 
+        catalog['edgeMap'] = mp.newMap(numelements=92606,
+                                     maptype='PROBING')
+
         catalog['digraph'] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=True,
                                               size=10700,
                                               comparefunction=None)
         
         catalog['undigraph'] = gr.newGraph(datastructure='ADJ_LIST',
-                                              directed=True,
+                                              directed=False,
                                               size=10700,
                                               comparefunction=None)
 
@@ -80,7 +84,8 @@ def init(): #Comentar
 # Funciones para agregar informacion al catalogo
 
 def addAirport(catalog, airport):
-    return mp.put(catalog['airports'], airport['IATA'], airport)
+    if not mp.contains(catalog['airports'], airport['IATA']):
+        mp.put(catalog['airports'], airport['IATA'], airport)
 
 def addNodeAirport(catalog, airport):
     """
@@ -91,7 +96,7 @@ def addNodeAirport(catalog, airport):
             gr.insertVertex(catalog['digraph'], airport)
         return catalog
     except Exception as exp:
-        error.reraise(exp, 'model:addAirport')
+        error.reraise(exp, 'model:addNodeAirport')
 
 def addConnection(catalog, departure, destination, distance):
     """
@@ -107,18 +112,12 @@ def addAirportConnection(catalog, route):
     Adiciona las estaciones al grafo como vertices y arcos entre las
     estaciones adyacentes.
 
-    Los vertices tienen por nombre el identificador de la estacion
-    seguido de la ruta que sirve.  Por ejemplo:
-
-    75009-10
-
-    Si la estacion sirve otra ruta, se tiene: 75009-101
     """
     try:
         departure = route["Departure"]
         destination = route["Destination"]
-        cleanServiceDistance(route["distance_km"])
         distance = route["distance_km"]
+        cleanServiceDistance(distance)
         addNodeAirport(catalog, departure)
         addNodeAirport(catalog, destination)
         addConnection(catalog, departure, destination, distance)
@@ -127,6 +126,26 @@ def addAirportConnection(catalog, route):
         return catalog
     except Exception as exp:
         error.reraise(exp, 'model:addAirportConnection')
+
+def addEdgeInfo(catalog, route):
+    IataDeparture = route["Departure"]
+    IataDestination = route["Destination"]
+    if not mp.contains(catalog["edgeMap"], IataDeparture): 
+        edges_list = lt.newList("ARRAY_LIST") 
+        lt.addLast(edges_list, IataDestination) 
+        mp.put(catalog["edgeMap"], IataDeparture, edges_list) 
+    else:
+        sighting_list = me.getValue(mp.get(catalog["edgeMap"], IataDeparture)) #Se saca la lista que contiene la ciudad
+        if not lt.isPresent(sighting_list, IataDestination):
+            lt.addLast(sighting_list, IataDestination) #Se añade la información de dicho avistamiento
+
+def createUndirectedGraph(catalog):
+    for departure in lt.iterator(mp.keySet(catalog['edgeMap'])):
+        for destination in lt.iterator(me.getValue(mp.get(catalog['edgeMap'], departure))):
+            if dualConnection(catalog, destination=destination, departure=departure):
+                    edge = gr.getEdge(catalog['undigraph'], departure, destination)
+                    if edge is None:
+                        gr.addEdge(catalog['undigraph'], departure, destination, weight=0)
 
 # Funciones para creacion de datos
 
@@ -138,11 +157,15 @@ def addAirportConnection(catalog, route):
 
 # Funciones de ayuda
 
-def cleanServiceDistance(route):
+def cleanServiceDistance(distance):
     """
     En caso de que el archivo tenga un espacio en la
     distancia, se reemplaza con cero.
     """
-    if route == '':
-        route = 0
+    if distance == '':
+        distance = 0
 
+def dualConnection(catalog, destination, departure): 
+    if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], destination)), departure) and lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], departure)), destination):
+        return True
+    return False 

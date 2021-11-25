@@ -43,17 +43,19 @@ def loadCSVs(catalog):
     addRouteConnection crea conexiones entre diferentes rutas
     servidas en una misma estación.
     """
-    routesfile = cf.data_routes
-    routes_file = csv.DictReader(open(routesfile, encoding="utf-8"),
-                                delimiter=",")
-    for route in routes_file:
-        model.addAirportConnection(catalog, route)
-
     airportsfile = cf.data_airports
-    airports_file = csv.DictReader(open(airportsfile, encoding="utf-8"),
-                                delimiter=",")
+    airports_file = csv.DictReader(open(airportsfile, encoding="utf-8"), delimiter=",")
     for airport in airports_file:
         model.addAirport(catalog, airport)
+
+    routesfile = cf.data_routes
+    routes_file = csv.DictReader(open(routesfile, encoding="utf-8"), delimiter=",")
+    for route in routes_file:
+        model.addAirportConnection(catalog, route) # digrapgh connection
+        model.addEdgeInfo(catalog, route) # Undirected graph
+
+    model.createUndirectedGraph(catalog)
+
         
     #model.addRouteConnections(catalog) REVISAR ESTA VERGA
     return catalog

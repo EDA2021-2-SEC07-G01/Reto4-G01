@@ -58,11 +58,10 @@ def thread_cycle():
         inputs = input('Seleccione una opción para continuar\n')
 
         if int(inputs[0]) == 1:
-            print("Cargando información de los archivos ....")
+            print("Cargando información de los archivos ...")
             catalog = controller.init()
             controller.loadCSVs(catalog)
-            print(catalog)
-
+            print("Grafos cargados!")
         elif int(inputs[0]) == 2:
             pass
 
