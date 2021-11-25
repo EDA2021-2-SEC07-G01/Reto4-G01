@@ -142,6 +142,7 @@ def addEdgeInfo(catalog, route):
 def createUndirectedGraph(catalog):
     for departure in lt.iterator(mp.keySet(catalog['edgeMap'])):
         for destination in lt.iterator(me.getValue(mp.get(catalog['edgeMap'], departure))):
+            breakpoint()
             if dualConnection(catalog, destination=destination, departure=departure):
                     edge = gr.getEdge(catalog['undigraph'], departure, destination)
                     if edge is None:
@@ -166,6 +167,10 @@ def cleanServiceDistance(distance):
         distance = 0
 
 def dualConnection(catalog, destination, departure): 
-    if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], destination)), departure) and lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], departure)), destination):
+    if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], destination)), departure) > 0:
+        one_boolean = True
+    if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], departure)), destination) > 0:
+        second_boolean = True
+    if one_boolean and second_boolean:
         return True
     return False 
