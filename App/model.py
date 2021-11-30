@@ -94,9 +94,16 @@ def addNodeAirport(catalog, airport):
     try:
         if not gr.containsVertex(catalog['digraph'], airport):
             gr.insertVertex(catalog['digraph'], airport)
-        return catalog
     except Exception as exp:
         error.reraise(exp, 'model:addNodeAirport')
+
+def addNodeUndigraph(catalog, airport):
+    try:
+        breakpoint()
+        if not gr.containsVertex(catalog['undigraph'], airport):
+            gr.insertVertex(catalog['undigraph'], airport)
+    except Exception as exp:
+        error.reraise(exp, 'model:addNodeUndigraph')
 
 def addConnection(catalog, departure, destination, distance):
     """
@@ -105,7 +112,6 @@ def addConnection(catalog, departure, destination, distance):
     edge = gr.getEdge(catalog['digraph'], departure, destination)
     if edge is None:
         gr.addEdge(catalog['digraph'], departure, destination, distance)
-    return catalog
 
 def addAirportConnection(catalog, route):
     """
@@ -114,16 +120,13 @@ def addAirportConnection(catalog, route):
 
     """
     try:
-        departure = route["Departure"]
-        destination = route["Destination"]
+        departure = route["Departure"] # IATA
+        destination = route["Destination"] # IATA
         distance = route["distance_km"]
         cleanServiceDistance(distance)
         addNodeAirport(catalog, departure)
         addNodeAirport(catalog, destination)
         addConnection(catalog, departure, destination, distance)
-        #addRouteStop(analyzer, service)
-        #addRouteStop(analyzer, lastservice)
-        return catalog
     except Exception as exp:
         error.reraise(exp, 'model:addAirportConnection')
 
@@ -135,18 +138,20 @@ def addEdgeInfo(catalog, route):
         lt.addLast(edges_list, IataDestination) 
         mp.put(catalog["edgeMap"], IataDeparture, edges_list) 
     else:
-        sighting_list = me.getValue(mp.get(catalog["edgeMap"], IataDeparture)) #Se saca la lista que contiene la ciudad
-        if not lt.isPresent(sighting_list, IataDestination):
-            lt.addLast(sighting_list, IataDestination) #Se añade la información de dicho avistamiento
+        edges_list = me.getValue(mp.get(catalog["edgeMap"], IataDeparture)) #Se saca la lista que contiene la ciudad
+        if not lt.isPresent(edges_list, IataDestination):
+            lt.addLast(edges_list, IataDestination) #Se añade la información de dicho avistamiento
 
 def createUndirectedGraph(catalog):
     for departure in lt.iterator(mp.keySet(catalog['edgeMap'])):
         for destination in lt.iterator(me.getValue(mp.get(catalog['edgeMap'], departure))):
             breakpoint()
             if dualConnection(catalog, destination=destination, departure=departure):
-                    edge = gr.getEdge(catalog['undigraph'], departure, destination)
-                    if edge is None:
-                        gr.addEdge(catalog['undigraph'], departure, destination, weight=0)
+                addNodeUndigraph(catalog['undigraph'], destination)
+                addNodeUndigraph(catalog['undigraph'], departure)
+                edge = gr.getEdge(catalog['undigraph'], departure, destination)
+                if edge is None:
+                    gr.addEdge(catalog['undigraph'], departure, destination, weight=0)
 
 # Funciones para creacion de datos
 
@@ -166,11 +171,11 @@ def cleanServiceDistance(distance):
     if distance == '':
         distance = 0
 
-def dualConnection(catalog, destination, departure): 
-    if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], destination)), departure) > 0:
-        one_boolean = True
-    if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], departure)), destination) > 0:
-        second_boolean = True
-    if one_boolean and second_boolean:
-        return True
+def dualConnection(catalog, destination, departure):
+    print(mp.get(catalog['edgeMap'], destination))
+    print(mp.get(catalog['edgeMap'], departure))
+    if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], destination)), departure):
+        if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], departure)), destination):
+            print("Funcionó")
+            return True
     return False 

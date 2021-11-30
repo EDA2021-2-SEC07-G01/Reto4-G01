@@ -55,11 +55,6 @@ def loadCSVs(catalog):
         model.addEdgeInfo(catalog, route) # Undirected graph
 
     model.createUndirectedGraph(catalog)
-
-        
-    #model.addRouteConnections(catalog) REVISAR ESTA VERGA
-    return catalog
-
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
