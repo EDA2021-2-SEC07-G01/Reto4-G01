@@ -99,7 +99,6 @@ def addNodeAirport(catalog, airport):
 
 def addNodeUndigraph(catalog, airport):
     try:
-        breakpoint()
         if not gr.containsVertex(catalog['undigraph'], airport):
             gr.insertVertex(catalog['undigraph'], airport)
     except Exception as exp:
@@ -145,10 +144,9 @@ def addEdgeInfo(catalog, route):
 def createUndirectedGraph(catalog):
     for departure in lt.iterator(mp.keySet(catalog['edgeMap'])):
         for destination in lt.iterator(me.getValue(mp.get(catalog['edgeMap'], departure))):
-            breakpoint()
             if dualConnection(catalog, destination=destination, departure=departure):
-                addNodeUndigraph(catalog['undigraph'], destination)
-                addNodeUndigraph(catalog['undigraph'], departure)
+                addNodeUndigraph(catalog, destination)
+                addNodeUndigraph(catalog, departure)
                 edge = gr.getEdge(catalog['undigraph'], departure, destination)
                 if edge is None:
                     gr.addEdge(catalog['undigraph'], departure, destination, weight=0)
@@ -172,10 +170,9 @@ def cleanServiceDistance(distance):
         distance = 0
 
 def dualConnection(catalog, destination, departure):
-    print(mp.get(catalog['edgeMap'], destination))
-    print(mp.get(catalog['edgeMap'], departure))
-    if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], destination)), departure):
-        if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], departure)), destination):
-            print("Funcionó")
+    if mp.get(catalog['edgeMap'], destination) == None or mp.get(catalog['edgeMap'], departure) == None:
+        return False
+    if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], destination)), departure) != 0:
+        if lt.isPresent(me.getValue(mp.get(catalog['edgeMap'], departure)), destination) != 0:
             return True
     return False 
