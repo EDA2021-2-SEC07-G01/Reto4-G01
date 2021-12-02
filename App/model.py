@@ -87,6 +87,19 @@ def addAirport(catalog, airport):
     if not mp.contains(catalog['airports'], airport['IATA']):
         mp.put(catalog['airports'], airport['IATA'], airport)
 
+def addCity(catalog, airport):
+    try:
+        city = airport['City']
+        if not mp.contains(catalog['cities'], city):
+            mapCity = mp.newMap(maptype='PROBING')
+            mp.put(mapCity, airport['IATA'], airport)
+            mp.put(catalog['cities'], city, mapCity)
+        else:
+            mapCity = me.getValue(mp.get(catalog['cities'],city))
+            mp.put(mapCity, airport['IATA'], airport)
+    except Exception as exp:
+        error.reraise(exp, 'model:addCity()')
+
 def addNodeAirport(catalog, airport):
     """
     Adiciona un aeropuerto como un vertice del grafo
@@ -154,6 +167,10 @@ def createUndirectedGraph(catalog):
 # Funciones para creacion de datos
 
 # Funciones de consulta
+
+def giveCities(catalog, city):
+    mapCity = me.getValue(mp.get(catalog['cities'], city))
+    return mp.valueSet(mapCity)
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 

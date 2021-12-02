@@ -46,7 +46,8 @@ def loadCSVs(catalog):
     airportsfile = cf.data_airports
     airports_file = csv.DictReader(open(airportsfile, encoding="utf-8"), delimiter=",")
     for airport in airports_file:
-        model.addAirport(catalog, airport)
+        #model.addAirport(catalog, airport) # TODO: check if this is usefull
+        model.addCity(catalog, airport)
 
     routesfile = cf.data_routes
     routes_file = csv.DictReader(open(routesfile, encoding="utf-8"), delimiter=",")
@@ -55,6 +56,7 @@ def loadCSVs(catalog):
         model.addEdgeInfo(catalog, route) # Undirected graph
 
     model.createUndirectedGraph(catalog)
-# Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
+def giveCities(catalog, city):
+    return model.giveCities(catalog, city)

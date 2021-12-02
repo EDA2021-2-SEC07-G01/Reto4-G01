@@ -69,7 +69,10 @@ def thread_cycle():
             pass
 
         elif int(inputs[0]) == 4:
-            pass
+            departure_city = input("Ingrese la ciudad de salida: ")
+            destination_city = input("Ingrese la ciudad de destino: ")
+            cities_departure = controller.giveCities(catalog, departure_city)
+            cities_destination = controller.giveCities(catalog, destination_city)
 
         elif int(inputs[0]) == 5:
             pass
