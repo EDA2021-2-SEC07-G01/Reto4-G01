@@ -26,6 +26,7 @@ assert cf
 import threading
 import time
 from App import controller
+from tabulate import tabulate
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack
 from DISClib.ADT.graph import gr
@@ -47,6 +48,13 @@ def printMenu():
     print("6- Cuantificar efecto aeropuerto cerrado")
 
 catalog = None
+
+def printIATAS(list_cities):
+    headers = ["Name", "City", "Country", "IATA","Latitude","Longitude"]
+    table1 = []
+    for airport in lt.iterator(list_cities):
+        table1.append([airport['Name'], airport['City'], airport['Country'], airport['IATA'], airport['Latitude'], airport['Longitude']])
+    print(tabulate(table1,headers, tablefmt="grid"))
 
 """
 Menu principal
@@ -73,6 +81,10 @@ def thread_cycle():
             destination_city = input("Ingrese la ciudad de destino: ")
             cities_departure = controller.giveCities(catalog, departure_city)
             cities_destination = controller.giveCities(catalog, destination_city)
+            printIATAS(cities_departure)
+            departureIATA = input('Ingrese el IATA del lugar salida de interés: ')
+            printIATAS(cities_destination)
+            departureIATA = input('Ingrese el IATA del lugar destino de interés: ')
 
         elif int(inputs[0]) == 5:
             pass

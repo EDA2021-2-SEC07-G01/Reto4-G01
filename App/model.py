@@ -83,20 +83,22 @@ def init(): #Comentar
 
 # Funciones para agregar informacion al catalogo
 
-def addAirport(catalog, airport):
+def addAirport(catalog, airport): #NOT USING YET
+    newairport = newAirport(airport['Name'], airport['City'], airport['Country'], airport['IATA'], airport['Latitude'], airport['Longitude'])
     if not mp.contains(catalog['airports'], airport['IATA']):
-        mp.put(catalog['airports'], airport['IATA'], airport)
+        mp.put(catalog['airports'], airport['IATA'], newairport)
 
 def addCity(catalog, airport):
     try:
         city = airport['City']
+        newairport = newAirport(airport['Name'], airport['City'], airport['Country'], airport['IATA'], airport['Latitude'], airport['Longitude'])
         if not mp.contains(catalog['cities'], city):
             mapCity = mp.newMap(maptype='PROBING')
-            mp.put(mapCity, airport['IATA'], airport)
+            mp.put(mapCity, airport['IATA'], newairport)
             mp.put(catalog['cities'], city, mapCity)
         else:
             mapCity = me.getValue(mp.get(catalog['cities'],city))
-            mp.put(mapCity, airport['IATA'], airport)
+            mp.put(mapCity, airport['IATA'], newairport)
     except Exception as exp:
         error.reraise(exp, 'model:addCity()')
 
@@ -165,6 +167,9 @@ def createUndirectedGraph(catalog):
                     gr.addEdge(catalog['undigraph'], departure, destination, weight=0)
 
 # Funciones para creacion de datos
+def newAirport(Name, City, Country, IATA, Latitude, Longitude):
+    airport = {"Name": Name, "City": City, "Country": Country, "IATA": IATA, "Latitude":Latitude, "Longitude": Longitude}
+    return airport
 
 # Funciones de consulta
 
