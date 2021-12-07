@@ -28,6 +28,8 @@ import time
 from App import controller
 from tabulate import tabulate
 from DISClib.ADT import list as lt
+from DISClib.ADT import map as mp
+from DISClib.DataStructures import mapentry as me
 from DISClib.ADT import stack
 from DISClib.ADT.graph import gr
 
@@ -49,6 +51,33 @@ def printMenu():
 
 catalog = None
 
+def printLoadData(catalog, data, first, last):
+    if data == 'digraph':
+        print("=== Aiports-Routes DiGraph ===")
+        print("Nodes: "+str(gr.numVertices(catalog[data]))+ " loaded airports.")
+        print("Edges: "+str(gr.numEdges(catalog[data]))+ " loaded routes.")
+        print("First & Last Airport loaded in the DiGraph")
+        headers = ["IATA", "Name", "City", "Country", "Latitude","Longitude"]
+        table1 = []
+        first_element = me.getValue(mp.get(catalog['airports'], first))
+        last_element = me.getValue(mp.get(catalog['airports'], first))
+        table1.append([first, first_element['Name'], first_element['City'], first_element['Country'], first_element['Latitude'], first_element['Longitude']])
+        table1.append([last, last_element['Name'], last_element['City'], last_element['Country'], last_element['Latitude'], last_element['Longitude']])
+        print(tabulate(table1,headers, tablefmt="grid"))
+        
+    elif data == 'undigraph':
+        print("=== Aiports-Routes Graph ===")
+        print("Nodes: "+str(gr.numVertices(catalog[data]))+ " loaded airports.")
+        print("Edges: "+str(gr.numEdges(catalog[data]))+ " loaded routes.")
+        print("First & Last Airport loaded in the DiGraph")
+        headers = ["IATA", "Name", "City", "Country", "Latitude","Longitude"]
+        table1 = []
+        first_element = me.getValue(mp.get(catalog['airports'], first))
+        last_element = me.getValue(mp.get(catalog['airports'], last))
+        table1.append([first, first_element['Name'], first_element['City'], first_element['Country'], first_element['Latitude'], first_element['Longitude']])
+        table1.append([last, last_element['Name'], last_element['City'], last_element['Country'], last_element['Latitude'], last_element['Longitude']])
+        print(tabulate(table1,headers, tablefmt="grid"))
+
 def printIATAS(list_cities):
     headers = ["Name", "City", "Country", "IATA","Latitude","Longitude"]
     table1 = []
@@ -68,8 +97,11 @@ def thread_cycle():
         if int(inputs[0]) == 1:
             print("Cargando información de los archivos ...")
             catalog = controller.init()
-            controller.loadCSVs(catalog)
-            print("Grafos cargados!")
+            IATA_first, IATA_last = controller.loadCSVs(catalog)
+            printLoadData(catalog, "digraph", IATA_first, IATA_last)
+            printLoadData(catalog, "undigraph", IATA_first, IATA_last)
+            #printLoadData(catalog, "cities")
+            #AÑADIR CITY NETWORK
         elif int(inputs[0]) == 2:
             pass
 
