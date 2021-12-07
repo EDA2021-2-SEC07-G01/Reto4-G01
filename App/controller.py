@@ -45,17 +45,28 @@ def loadCSVs(catalog):
     """
     airportsfile = cf.data_airports
     airports_file = csv.DictReader(open(airportsfile, encoding="utf-8"), delimiter=",")
+    contador = 0
     for airport in airports_file:
-        #model.addAirport(catalog, airport) # TODO: check if this is usefull
-        model.addCity(catalog, airport)
-
+        model.addAirport(catalog, airport)
+        model.addNodeAirport(catalog['digraph'], airport['IATA'])
+        model.addNodeAirport(catalog['undigraph'], airport['IATA'])
+        if contador == 0:
+            first_IATA = airport['IATA']
+        last_IATA = airport['IATA']
+        contador += 1
+            
     routesfile = cf.data_routes
     routes_file = csv.DictReader(open(routesfile, encoding="utf-8"), delimiter=",")
     for route in routes_file:
         model.addAirportConnection(catalog, route) # digrapgh connection
-        model.addEdgeInfo(catalog, route) # Undirected graph
-
+        model.addEdgeInfo(catalog, route) # undirected-graph connection
     model.createUndirectedGraph(catalog)
+
+    #worldcities = cf.data_worldcities
+    #for city in worldcities:
+        #model.addCity(catalog, city)
+
+    return first_IATA, last_IATA
 
 # Funciones de consulta sobre el catálogo
 def giveCities(catalog, city):

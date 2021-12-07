@@ -83,49 +83,40 @@ def init(): #Comentar
 
 # Funciones para agregar informacion al catalogo
 
-def addAirport(catalog, airport): #NOT USING YET
+def addAirport(catalog, airport):
     newairport = newAirport(airport['Name'], airport['City'], airport['Country'], airport['IATA'], airport['Latitude'], airport['Longitude'])
     if not mp.contains(catalog['airports'], airport['IATA']):
         mp.put(catalog['airports'], airport['IATA'], newairport)
 
-def addCity(catalog, airport):
+def addCity(catalog, city):
     try:
-        city = airport['City']
-        newairport = newAirport(airport['Name'], airport['City'], airport['Country'], airport['IATA'], airport['Latitude'], airport['Longitude'])
+        number_id = city['id']
+        newcity = newCity(city['Name'], city['City'], city['Country'], city['IATA'], city['Latitude'], city['Longitude'])
         if not mp.contains(catalog['cities'], city):
             mapCity = mp.newMap(maptype='PROBING')
-            mp.put(mapCity, airport['IATA'], newairport)
+            mp.put(mapCity, city['IATA'], newcity)
             mp.put(catalog['cities'], city, mapCity)
         else:
             mapCity = me.getValue(mp.get(catalog['cities'],city))
-            mp.put(mapCity, airport['IATA'], newairport)
+            mp.put(mapCity, city['IATA'], newcity)
     except Exception as exp:
         error.reraise(exp, 'model:addCity()')
 
-def addNodeAirport(catalog, airport):
+def addNodeAirport(graph, airport):
     """
     Adiciona un aeropuerto como un vertice del grafo
     """
     try:
-        if not gr.containsVertex(catalog['digraph'], airport):
-            gr.insertVertex(catalog['digraph'], airport)
+        if not gr.containsVertex(graph, airport):
+            gr.insertVertex(graph, airport)
     except Exception as exp:
         error.reraise(exp, 'model:addNodeAirport')
-
-def addNodeUndigraph(catalog, airport):
-    try:
-        if not gr.containsVertex(catalog['undigraph'], airport):
-            gr.insertVertex(catalog['undigraph'], airport)
-    except Exception as exp:
-        error.reraise(exp, 'model:addNodeUndigraph')
 
 def addConnection(catalog, departure, destination, distance):
     """
     Adiciona un arco entre dos aeropuertos
     """
-    edge = gr.getEdge(catalog['digraph'], departure, destination)
-    if edge is None:
-        gr.addEdge(catalog['digraph'], departure, destination, distance)
+    gr.addEdge(catalog['digraph'], departure, destination, distance)
 
 def addAirportConnection(catalog, route):
     """
@@ -138,9 +129,7 @@ def addAirportConnection(catalog, route):
         destination = route["Destination"] # IATA
         distance = route["distance_km"]
         cleanServiceDistance(distance)
-        addNodeAirport(catalog, departure)
-        addNodeAirport(catalog, destination)
-        addConnection(catalog, departure, destination, distance)
+        addConnection(catalog, departure, destination, float(distance))
     except Exception as exp:
         error.reraise(exp, 'model:addAirportConnection')
 
@@ -160,15 +149,15 @@ def createUndirectedGraph(catalog):
     for departure in lt.iterator(mp.keySet(catalog['edgeMap'])):
         for destination in lt.iterator(me.getValue(mp.get(catalog['edgeMap'], departure))):
             if dualConnection(catalog, destination=destination, departure=departure):
-                addNodeUndigraph(catalog, destination)
-                addNodeUndigraph(catalog, departure)
-                edge = gr.getEdge(catalog['undigraph'], departure, destination)
-                if edge is None:
-                    gr.addEdge(catalog['undigraph'], departure, destination, weight=0)
+                gr.addEdge(catalog['undigraph'], departure, destination, weight=0)
 
 # Funciones para creacion de datos
 def newAirport(Name, City, Country, IATA, Latitude, Longitude):
     airport = {"Name": Name, "City": City, "Country": Country, "IATA": IATA, "Latitude":Latitude, "Longitude": Longitude}
+    return airport
+
+def newCity(city, lat, lng, country, capital, population):
+    airport = {"city": city, "lat": lat, "lng": lng, "country": country, "capital":capital, "population": population}
     return airport
 
 # Funciones de consulta
