@@ -71,3 +71,9 @@ def loadCSVs(catalog):
 # Funciones de consulta sobre el catálogo
 def giveCities(catalog, city):
     return model.giveCities(catalog, city)
+
+def interconexion(catalog):
+    return model.get_interconexion(catalog)
+
+def clusters(catalog, iata1, iata2):
+    return model.clusters(catalog, iata1, iata2)

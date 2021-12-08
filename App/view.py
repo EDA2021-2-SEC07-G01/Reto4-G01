@@ -103,10 +103,15 @@ def thread_cycle():
             #printLoadData(catalog, "cities")
             #AÑADIR CITY NETWORK
         elif int(inputs[0]) == 2:
-            pass
+            iatas_connect = controller.interconexion(catalog)
+            print(iatas_connect)
 
         elif int(inputs[0]) == 3:
-            pass
+            iata1 = input("Ingrese el IATA del primer aeropuerto: ")
+            iata2 = input("Ingrese el IATA del segundo aeropuerto: ")
+            total, connected = controller.clusters(catalog, iata1, iata2)
+            print("Number of SCC in Airport-Route network: " + str(total))
+            print("Do they belong together? " + str(connected))
 
         elif int(inputs[0]) == 4:
             departure_city = input("Ingrese la ciudad de salida: ")

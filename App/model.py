@@ -27,10 +27,13 @@
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
+from DISClib.ADT import orderedmap as omap
 from DISClib.ADT.graph import gr
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Utils import error as error
+from DISClib.Algorithms.Graphs import prim
+from DISClib.Algorithms.Graphs import scc as kosaraju
 assert cf
 
 """
@@ -40,7 +43,7 @@ los mismos.
 
 # Construccion de modelos
 
-def init(): #Comentar
+def init(): 
     """ Inicializa el catálogo
 
    stops: Tabla de hash para guardar los vertices del grafo
@@ -76,6 +79,8 @@ def init(): #Comentar
                                               directed=False,
                                               size=10700,
                                               comparefunction=None)
+        
+        catalog['connections'] = omap.newMap(omaptype='BST')
 
         return catalog
     except Exception as exp:
@@ -165,6 +170,34 @@ def newCity(city, lat, lng, country, capital, population):
 def giveCities(catalog, city):
     mapCity = me.getValue(mp.get(catalog['cities'], city))
     return mp.valueSet(mapCity)
+
+def interconexion(catalog):
+    vertices = gr.vertices(catalog['digraph'])
+    for iata in lt.iterator(vertices):
+        connections = gr.indegree(catalog['digraph'], iata) + gr.outdegree(catalog['digraph'], iata)
+        if not omap.contains(catalog['connections'], connections):
+            connect_list = lt.newList(datastructure='ARRAY_LIST')
+            lt.addLast(connect_list, iata)
+            omap.put(catalog['connections'], connections, connect_list) # the number of connections is the key
+        else:
+            connect_list = me.getValue(omap.get(catalog['connections'], connections))
+            lt.addLast(connect_list, iata)
+    return catalog['connections']
+
+def get_interconexion(catalog): #omap with values as list of iatas
+    omap_connect = interconexion(catalog)
+    iatas = lt.newList(datastructure='ARRAY_LIST')
+    contador = 0
+    while contador < 5:
+        for iata in lt.iterator(me.getValue(omap.get(omap_connect,(omap.maxKey(omap_connect))))):
+            lt.addLast(iatas, iata)
+            contador += 1
+        omap.deleteMax(omap_connect)
+    return iatas
+
+def clusters(catalog, iata1, iata2):
+    scc = kosaraju.KosarajuSCC(catalog['digraph'])
+    return kosaraju.connectedComponents(scc), kosaraju.stronglyConnected(scc, iata1, iata2)
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
