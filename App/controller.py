@@ -76,3 +76,6 @@ def interconexion(catalog):
 
 def clusters(catalog, iata1, iata2):
     return model.clusters(catalog, iata1, iata2)
+
+def mst(catalog, departure_iata):
+    return model.mst(catalog, departure_iata)

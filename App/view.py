@@ -124,7 +124,10 @@ def thread_cycle():
             destinationCoordinates = input('Ingrese la latidud y longitud de llegada separada por coma: ')
 
         elif int(inputs[0]) == 5:
-            pass
+            departure_iata = input("Ingrese la ciudad de origen: ")
+            millas = input("Cantidad de millas disponibles: ")
+            km = int(millas)*1.6
+            mst = controller.mst(catalog, departure_iata)
 
         elif int(inputs[0]) == 6:
             pass

@@ -157,6 +157,7 @@ def createUndirectedGraph(catalog):
                 gr.addEdge(catalog['undigraph'], departure, destination, weight=0)
 
 # Funciones para creacion de datos
+
 def newAirport(Name, City, Country, IATA, Latitude, Longitude):
     airport = {"Name": Name, "City": City, "Country": Country, "IATA": IATA, "Latitude":Latitude, "Longitude": Longitude}
     return airport
@@ -194,6 +195,10 @@ def get_interconexion(catalog): #omap with values as list of iatas
 def clusters(catalog, iata1, iata2):
     scc = kosaraju.KosarajuSCC(catalog['digraph'])
     return kosaraju.connectedComponents(scc), kosaraju.stronglyConnected(scc, iata1, iata2)
+
+def mst(catalog, departure_iata):
+    breakpoint()
+    mst = prim.PrimMST(catalog['undigraph'])
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
