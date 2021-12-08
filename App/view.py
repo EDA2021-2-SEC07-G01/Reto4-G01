@@ -69,7 +69,7 @@ def printLoadData(catalog, data, first, last):
         print("=== Aiports-Routes Graph ===")
         print("Nodes: "+str(gr.numVertices(catalog[data]))+ " loaded airports.")
         print("Edges: "+str(gr.numEdges(catalog[data]))+ " loaded routes.")
-        print("First & Last Airport loaded in the DiGraph")
+        print("First & Last Airport loaded in the Graph")
         headers = ["IATA", "Name", "City", "Country", "Latitude","Longitude"]
         table1 = []
         first_element = me.getValue(mp.get(catalog['airports'], first))
@@ -78,12 +78,74 @@ def printLoadData(catalog, data, first, last):
         table1.append([last, last_element['Name'], last_element['City'], last_element['Country'], last_element['Latitude'], last_element['Longitude']])
         print(tabulate(table1,headers, tablefmt="grid"))
 
+    elif data == 'cities':
+        print("=== City Network ===")
+        print("The number of cities are: "+str(mp.size(catalog[data])))
+        print("First & Last City loaded in data structure.")
+        headers = ["City", "Country", "Latitude", "Longitude", "Population"]
+        table1 = []
+        first_element = lt.getElement(me.getValue(mp.get(catalog[data], first)), 1)
+        last_element = lt.getElement(me.getValue(mp.get(catalog[data], last)), 1)
+        table1.append([first, first_element['country'], first_element['lat'], first_element['lng'], first_element['population']])
+        table1.append([last, last_element['country'], last_element['lat'], last_element['lng'], last_element['population']])
+        print(tabulate(table1,headers, tablefmt="grid"))
+
+def printREQ1(list_iatas, catalog):
+    if lt.size(list_iatas) < 5:
+        headers = ["Name", "City", "Country", "IATA", "connections", "inbound", "outbound"]
+        table1 = []
+        for iata in lt.iterator(list_iatas):
+            airport = me.getValue(mp.get(catalog['airports'], iata))
+            table1.append([airport['Name'], airport['City'], airport['Country'], airport['IATA'], gr.indegree(catalog['digraph'], iata)+gr.outdegree(catalog['digraph'], iata), gr.indegree(catalog['digraph'], iata), gr.outdegree(catalog['digraph'], iata)])
+        print(tabulate(table1,headers, tablefmt="grid"))       
+    elif lt.size(list_iatas) >= 5:
+        contador = 0
+        headers = ["Name", "City", "Country", "IATA", "connections", "inbound", "outbound"]
+        table1 = []
+        for iata in lt.iterator(list_iatas):
+            airport = me.getValue(mp.get(catalog['airports'], iata))
+            table1.append([airport['Name'], airport['City'], airport['Country'], airport['IATA'], gr.indegree(catalog['digraph'], iata)+gr.outdegree(catalog['digraph'], iata), gr.indegree(catalog['digraph'], iata), gr.outdegree(catalog['digraph'], iata)])
+            contador += 1
+            if contador == 5:
+                break
+        print(tabulate(table1,headers, tablefmt="grid")) 
+
+def printREQ2(iata, catalog):
+    airport = me.getValue(mp.get(catalog['airports'], iata))
+    headers = ["IATA", "Name", "City", "Country"]
+    table1 = []
+    table1.append([iata, airport['Name'], airport['City'], airport['Country']])
+    print(tabulate(table1,headers, tablefmt="grid")) 
+
 def printIATAS(list_cities):
     headers = ["City", "Latitude", "Longitude", "Country", "Admin-Name"]
     table1 = []
     for city in lt.iterator(list_cities):
         table1.append([city['city'], city['lat'], city['lng'], city['country'], city['admin_name']])
     print(tabulate(table1,headers, tablefmt="grid"))
+
+def printREQ5(list_IATAS, airports):
+    headers = ["IATA", "Name", "City", "Country"]
+    table1 = []
+    if lt.size(list_IATAS) < 6:
+        for iata in lt.iterator(list_IATAS):
+            airport = me.getValue(mp.get(airports, iata))
+            table1.append([iata, airport['Name'], airport['City'], airport['Country']])    
+        print(tabulate(table1,headers, tablefmt="grid"))
+    elif lt.size(list_IATAS) >= 6:
+        i = 1
+        while i < 4:
+            iata = lt.getElement(list_IATAS, i)
+            airport = me.getValue(mp.get(airports, iata))
+            table1.append([iata, airport['Name'], airport['City'], airport['Country']])
+            i += 1    
+        j = -2
+        while j < 1:
+            iata = lt.getElement(list_IATAS, lt.size(list_IATAS)+j)
+            airport = me.getValue(mp.get(airports, iata))
+            table1.append([iata, airport['Name'], airport['City'], airport['Country']])
+            j += 1    
+        print(tabulate(table1,headers, tablefmt="grid"))
 
 """
 Menu principal
@@ -97,21 +159,38 @@ def thread_cycle():
         if int(inputs[0]) == 1:
             print("Cargando información de los archivos ...")
             catalog = controller.init()
-            IATA_first, IATA_last = controller.loadCSVs(catalog)
+            IATA_first, IATA_last, first_city, last_city = controller.loadCSVs(catalog)
             printLoadData(catalog, "digraph", IATA_first, IATA_last)
             printLoadData(catalog, "undigraph", IATA_first, IATA_last)
-            #printLoadData(catalog, "cities")
-            #AÑADIR CITY NETWORK
+            printLoadData(catalog, "cities", first_city, last_city)
+    
         elif int(inputs[0]) == 2:
+            print("=============== Req No. 1 Inputs ===============")
+            print("most connected airports in network (TOP 5)")
+            print("Number of aiports in network: "+str(gr.numVertices(catalog['digraph']))+'\n')
+            print("=============== Req No. 1 Answer ===============")
+            print("Connected airports inside network: "+str(gr.numEdges(catalog['undigraph'])))
+            print("TOP 5 most connected airports...")
             iatas_connect = controller.interconexion(catalog)
-            print(iatas_connect)
+            printREQ1(iatas_connect, catalog)
 
         elif int(inputs[0]) == 3:
             iata1 = input("Ingrese el IATA del primer aeropuerto: ")
             iata2 = input("Ingrese el IATA del segundo aeropuerto: ")
+            print("=============== Req No. 2 Inputs ===============")
+            print("Airport-1 IATA Code: "+iata1)
+            print("Airport-2 IATA Code: "+iata2+'\n')
+            print("=============== Req No. 2 Answers ===============")
+            print("+++ Airport 1 IATA Code: "+iata1+" +++")
+            printREQ2(iata1, catalog)
+            print("+++ Airport 1 IATA Code: "+iata2+" +++")
+            printREQ2(iata2, catalog)
+            '\n'
+            airport1 = me.getValue(mp.get(catalog['airports'], iata1))["Name"]
+            airport2 = me.getValue(mp.get(catalog['airports'], iata2))["Name"]
             total, connected = controller.clusters(catalog, iata1, iata2)
             print("Number of SCC in Airport-Route network: " + str(total))
-            print("Do they belong together? " + str(connected))
+            print("Does the "+airport1+" and the "+airport2+" belong together?\n"+"ANSWER: "+str(connected))
 
         elif int(inputs[0]) == 4:
             departure_city = input("Ingrese la ciudad de salida: ")
@@ -130,7 +209,26 @@ def thread_cycle():
             mst = controller.mst(catalog, departure_iata)
 
         elif int(inputs[0]) == 6:
-            pass
+            IATA_useless = input("Ingrese el IATA del aeropuerto fuera de funcionamiento: ")
+            print("=============== Req No. 5 Inputs ===============")
+            print("Closing the airport with IATA code: "+IATA_useless+'\n')
+            airports = gr.numVertices(catalog['digraph'])
+            routes_directed = gr.numEdges(catalog['digraph'])
+            routes_undirected = gr.numEdges(catalog['undigraph'])
+            print("--- Airport-Routes Digraph ---")
+            print("Original number of the Airports: "+str(airports)+' and Routes: '+str(routes_directed))
+            print("--- Airport-Routes Graph ---")
+            print("Original number of the Airports: "+str(airports)+' and Routes: '+str(routes_undirected)+'\n')
+            print("+++ Removing Airport with IATA code: "+IATA_useless+' +++\n')
+            directedfinal_nodes, directedroutes, directed_affected = controller.deleteIATA(catalog['digraph'], IATA_useless)
+            print("--- Airport-Routes Digraph ---")
+            print("Resulting number of the Airports: "+str(directedfinal_nodes)+' and Routes: '+str(directedroutes))
+            print("--- Airport-Routes Graph ---")
+            print("Original number of the Airports: "+str(directedfinal_nodes)+' and Routes: '+str(routes_undirected-lt.size(directed_affected))+'\n')
+            print("=============== Req No. 5 Answer ===============")
+            print("There are "+str(lt.size(directed_affected))+" Airports affected by the removal of "+IATA_useless)
+            print("The first & last 3 Airports affected are: ")
+            printREQ5(directed_affected, catalog['airports'])
 
         else:
             sys.exit(0)

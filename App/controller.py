@@ -64,10 +64,15 @@ def loadCSVs(catalog):
 
     worldcities = cf.data_worldcities
     worldcities_file = csv.DictReader(open(worldcities, encoding="utf-8"), delimiter=",")
+    contador_cities = 0
     for city in worldcities_file:
         model.addCity(catalog, city)
+        if contador_cities == 0:
+            first_city = city['city_ascii']
+        last_city = city['city_ascii']
+        contador_cities += 1
 
-    return first_IATA, last_IATA
+    return first_IATA, last_IATA, first_city, last_city
 
 # Funciones de consulta sobre el catálogo
 
@@ -79,3 +84,6 @@ def clusters(catalog, iata1, iata2):
 
 def mst(catalog, departure_iata):
     return model.mst(catalog, departure_iata)
+
+def deleteIATA(graph, IATA_useless):
+    return model.deleteIATA(graph, IATA_useless)

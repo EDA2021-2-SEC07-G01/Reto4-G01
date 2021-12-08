@@ -25,10 +25,11 @@
  """
 
 import config as cf
+import copy
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.ADT import orderedmap as omap
-from DISClib.ADT.graph import gr
+from DISClib.ADT.graph import gr, numEdges, numVertices
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Utils import error as error
@@ -80,7 +81,7 @@ def init():
                                               size=10700,
                                               comparefunction=None)
         
-        catalog['connections'] = omap.newMap(omaptype='BST')
+        catalog['connections'] = omap.newMap(omaptype='RBT')
 
         return catalog
     except Exception as exp:
@@ -199,6 +200,17 @@ def clusters(catalog, iata1, iata2):
 def mst(catalog, departure_iata):
     breakpoint()
     mst = prim.PrimMST(catalog['undigraph'])
+
+def deleteIATA(graph, IATA_useless):
+    final_nodes = gr.numVertices(graph)-1
+    routes = gr.numEdges(graph) - (gr.outdegree(graph, IATA_useless) + gr.indegree(graph, IATA_useless))
+    affected_airports = gr.adjacents(graph, IATA_useless)
+    final_affected = lt.newList("ARRAY_LIST")
+    for aiport in lt.iterator(affected_airports):        
+        if lt.isPresent(final_affected, aiport) == 0:
+            lt.addLast(final_affected, aiport)
+    return final_nodes, routes, final_affected
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
