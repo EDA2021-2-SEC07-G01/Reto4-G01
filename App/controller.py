@@ -62,15 +62,14 @@ def loadCSVs(catalog):
         model.addEdgeInfo(catalog, route) # undirected-graph connection
     model.createUndirectedGraph(catalog)
 
-    #worldcities = cf.data_worldcities
-    #for city in worldcities:
-        #model.addCity(catalog, city)
+    worldcities = cf.data_worldcities
+    worldcities_file = csv.DictReader(open(worldcities, encoding="utf-8"), delimiter=",")
+    for city in worldcities_file:
+        model.addCity(catalog, city)
 
     return first_IATA, last_IATA
 
 # Funciones de consulta sobre el catálogo
-def giveCities(catalog, city):
-    return model.giveCities(catalog, city)
 
 def interconexion(catalog):
     return model.get_interconexion(catalog)

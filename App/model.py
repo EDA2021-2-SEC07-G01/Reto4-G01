@@ -64,7 +64,7 @@ def init():
         catalog['airports'] = mp.newMap(numelements=41001,
                                      maptype='PROBING')
 
-        catalog['cities'] = mp.newMap(numelements=14000,
+        catalog['cities'] = mp.newMap(numelements=41100,
                                      maptype='PROBING')
 
         catalog['edgeMap'] = mp.newMap(numelements=92606,
@@ -95,15 +95,15 @@ def addAirport(catalog, airport):
 
 def addCity(catalog, city):
     try:
-        number_id = city['id']
-        newcity = newCity(city['Name'], city['City'], city['Country'], city['IATA'], city['Latitude'], city['Longitude'])
-        if not mp.contains(catalog['cities'], city):
-            mapCity = mp.newMap(maptype='PROBING')
-            mp.put(mapCity, city['IATA'], newcity)
-            mp.put(catalog['cities'], city, mapCity)
+        city_name = city['city_ascii']
+        newcity = newCity(city['city'], city['city_ascii'], city['lat'], city['lng'], city['country'], city['capital'], city['population'], city['admin_name'])
+        if not mp.contains(catalog['cities'], city_name):
+            mapList = lt.newList("ARRAY_LIST")
+            lt.addLast(mapList, newcity)
+            mp.put(catalog['cities'], city_name, mapList)
         else:
-            mapCity = me.getValue(mp.get(catalog['cities'],city))
-            mp.put(mapCity, city['IATA'], newcity)
+            mapList = me.getValue(mp.get(catalog['cities'], city_name))
+            lt.addLast(mapList, newcity)
     except Exception as exp:
         error.reraise(exp, 'model:addCity()')
 
@@ -161,15 +161,11 @@ def newAirport(Name, City, Country, IATA, Latitude, Longitude):
     airport = {"Name": Name, "City": City, "Country": Country, "IATA": IATA, "Latitude":Latitude, "Longitude": Longitude}
     return airport
 
-def newCity(city, lat, lng, country, capital, population):
-    airport = {"city": city, "lat": lat, "lng": lng, "country": country, "capital":capital, "population": population}
+def newCity(city, citi_ascii, lat, lng, country, capital, population, admin_name):
+    airport = {"city": city, "city_ascii": citi_ascii, "lat": lat, "lng": lng, "country": country, "capital":capital, "population": population, "admin_name": admin_name}
     return airport
 
 # Funciones de consulta
-
-def giveCities(catalog, city):
-    mapCity = me.getValue(mp.get(catalog['cities'], city))
-    return mp.valueSet(mapCity)
 
 def interconexion(catalog):
     vertices = gr.vertices(catalog['digraph'])

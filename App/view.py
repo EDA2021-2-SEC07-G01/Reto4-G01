@@ -79,10 +79,10 @@ def printLoadData(catalog, data, first, last):
         print(tabulate(table1,headers, tablefmt="grid"))
 
 def printIATAS(list_cities):
-    headers = ["Name", "City", "Country", "IATA","Latitude","Longitude"]
+    headers = ["City", "Latitude", "Longitude", "Country", "Admin-Name"]
     table1 = []
-    for airport in lt.iterator(list_cities):
-        table1.append([airport['Name'], airport['City'], airport['Country'], airport['IATA'], airport['Latitude'], airport['Longitude']])
+    for city in lt.iterator(list_cities):
+        table1.append([city['city'], city['lat'], city['lng'], city['country'], city['admin_name']])
     print(tabulate(table1,headers, tablefmt="grid"))
 
 """
@@ -116,12 +116,12 @@ def thread_cycle():
         elif int(inputs[0]) == 4:
             departure_city = input("Ingrese la ciudad de salida: ")
             destination_city = input("Ingrese la ciudad de destino: ")
-            cities_departure = controller.giveCities(catalog, departure_city)
-            cities_destination = controller.giveCities(catalog, destination_city)
-            printIATAS(cities_departure)
-            departureIATA = input('Ingrese el IATA del lugar salida de interés: ')
-            printIATAS(cities_destination)
-            departureIATA = input('Ingrese el IATA del lugar destino de interés: ')
+            all_departures = me.getValue(mp.get(catalog['cities'], departure_city))
+            all_destinations = me.getValue(mp.get(catalog['cities'], destination_city))
+            printIATAS(all_departures)
+            departureCoordinates = input('Ingrese la latidud y longitud de salida separada por coma: ')
+            printIATAS(all_destinations)
+            destinationCoordinates = input('Ingrese la latidud y longitud de llegada separada por coma: ')
 
         elif int(inputs[0]) == 5:
             pass
