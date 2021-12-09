@@ -24,17 +24,22 @@
  * Dario Correal - Version inicial
  """
 
+from DISClib.ADT.indexminpq import size
 import config as cf
 import copy
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.ADT import orderedmap as omap
+from DISClib.ADT import stack as pila
+from DISClib.ADT import queue as cola
 from DISClib.ADT.graph import gr, numEdges, numVertices
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Utils import error as error
 from DISClib.Algorithms.Graphs import prim
 from DISClib.Algorithms.Graphs import scc as kosaraju
+from DISClib.Algorithms.Graphs import dfs
+
 assert cf
 
 """
@@ -155,7 +160,8 @@ def createUndirectedGraph(catalog):
     for departure in lt.iterator(mp.keySet(catalog['edgeMap'])):
         for destination in lt.iterator(me.getValue(mp.get(catalog['edgeMap'], departure))):
             if dualConnection(catalog, destination=destination, departure=departure):
-                gr.addEdge(catalog['undigraph'], departure, destination, weight=0)
+                weight = gr.getEdge(catalog['digraph'], departure, destination)['weight']
+                gr.addEdge(catalog['undigraph'], departure, destination, weight=weight)
 
 # Funciones para creacion de datos
 
@@ -197,9 +203,29 @@ def clusters(catalog, iata1, iata2):
     scc = kosaraju.KosarajuSCC(catalog['digraph'])
     return kosaraju.connectedComponents(scc), kosaraju.stronglyConnected(scc, iata1, iata2)
 
-def mst(catalog, departure_iata):
-    breakpoint()
-    mst = prim.PrimMST(catalog['undigraph'])
+def mst(catalog, km, init):
+    mst = prim.PrimMST(catalog['undigraph']) # search
+    edges_mst = prim.edgesMST(catalog['undigraph'], mst) # search
+    kilometers= prim.weightMST(catalog['undigraph'], edges_mst)
+    grafo_mst = gr.newGraph(datastructure='ADJ_LIST', directed=False, size=1000, comparefunction=None)
+    i = 1
+    while i <= lt.size(edges_mst["mst"]):
+        arista = lt.getElement(edges_mst["mst"], i)
+        vertexA = arista["vertexA"]
+        vertexB = arista["vertexB"]
+        weight = arista["weight"]
+        if not gr.containsVertex(grafo_mst, vertexA):
+            gr.insertVertex(grafo_mst, vertexA)
+        if not gr.containsVertex(grafo_mst, vertexB):
+            gr.insertVertex(grafo_mst, vertexB)
+        gr.addEdge(grafo_mst, vertexA, vertexB, weight)
+        i += 1
+
+    end = lt.lastElement(edges_mst["mst"])["vertexB"]
+    dfs_str = dfs.DepthFirstSearch(grafo_mst, init)
+    path = dfs.pathTo(dfs_str, end)
+    print(path)
+    return gr.numVertices(grafo_mst), kilometers/2 , path
 
 def deleteIATA(graph, IATA_useless):
     final_nodes = gr.numVertices(graph)-1

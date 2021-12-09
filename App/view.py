@@ -203,10 +203,10 @@ def thread_cycle():
             destinationCoordinates = input('Ingrese la latidud y longitud de llegada separada por coma: ')
 
         elif int(inputs[0]) == 5:
-            departure_iata = input("Ingrese la ciudad de origen: ")
+            init = input("Ingrese la ciudad de origen como IATA: ")
             millas = input("Cantidad de millas disponibles: ")
-            km = int(millas)*1.6
-            mst = controller.mst(catalog, departure_iata)
+            km = float(millas)*1.6
+            mst = controller.mst(catalog, km, init)
 
         elif int(inputs[0]) == 6:
             IATA_useless = input("Ingrese el IATA del aeropuerto fuera de funcionamiento: ")

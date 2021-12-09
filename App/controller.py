@@ -82,8 +82,8 @@ def interconexion(catalog):
 def clusters(catalog, iata1, iata2):
     return model.clusters(catalog, iata1, iata2)
 
-def mst(catalog, departure_iata):
-    return model.mst(catalog, departure_iata)
+def mst(catalog, km, init):
+    return model.mst(catalog, km, init)
 
 def deleteIATA(graph, IATA_useless):
     return model.deleteIATA(graph, IATA_useless)
