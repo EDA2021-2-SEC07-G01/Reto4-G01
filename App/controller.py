@@ -87,3 +87,6 @@ def mst(catalog, km, init):
 
 def deleteIATA(graph, IATA_useless):
     return model.deleteIATA(graph, IATA_useless)
+
+def distanceDijkstra(catalog, iata1, iata2):
+    return model.distanceDijkstra(catalog, iata1, iata2)

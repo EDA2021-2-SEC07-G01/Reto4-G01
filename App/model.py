@@ -32,14 +32,16 @@ from DISClib.ADT import map as mp
 from DISClib.ADT import orderedmap as omap
 from DISClib.ADT import stack as pila
 from DISClib.ADT import queue as cola
-from DISClib.ADT.graph import gr, numEdges, numVertices
+from DISClib.ADT.graph import edges, gr
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Utils import error as error
 from DISClib.Algorithms.Graphs import prim
 from DISClib.Algorithms.Graphs import scc as kosaraju
 from DISClib.Algorithms.Graphs import dfs
-
+from DISClib.Algorithms.Graphs import bfs
+from DISClib.ADT import stack
+from DISClib.Algorithms.Graphs import dijsktra as dj
 assert cf
 
 """
@@ -170,8 +172,8 @@ def newAirport(Name, City, Country, IATA, Latitude, Longitude):
     return airport
 
 def newCity(city, citi_ascii, lat, lng, country, capital, population, admin_name):
-    airport = {"city": city, "city_ascii": citi_ascii, "lat": lat, "lng": lng, "country": country, "capital":capital, "population": population, "admin_name": admin_name}
-    return airport
+    city = {"city": city, "city_ascii": citi_ascii, "lat": lat, "lng": lng, "country": country, "capital":capital, "population": population, "admin_name": admin_name}
+    return city
 
 # Funciones de consulta
 
@@ -218,13 +220,13 @@ def mst(catalog, km, init):
             gr.insertVertex(grafo_mst, vertexA)
         if not gr.containsVertex(grafo_mst, vertexB):
             gr.insertVertex(grafo_mst, vertexB)
-        gr.addEdge(grafo_mst, vertexA, vertexB, weight)
+        if gr.getEdge(grafo_mst, vertexA, vertexB) == None:
+            gr.addEdge(grafo_mst, vertexA, vertexB, weight)
         i += 1
-
-    end = lt.lastElement(edges_mst["mst"])["vertexB"]
+    end = lt.lastElement(edges_mst['mst'])["vertexB"]
     dfs_str = dfs.DepthFirstSearch(grafo_mst, init)
     path = dfs.pathTo(dfs_str, end)
-    print(path)
+    vertex_path = dfs.dfsVertex(dfs_str, grafo_mst, init)
     return gr.numVertices(grafo_mst), kilometers/2 , path
 
 def deleteIATA(graph, IATA_useless):
@@ -237,6 +239,16 @@ def deleteIATA(graph, IATA_useless):
             lt.addLast(final_affected, aiport)
     return final_nodes, routes, final_affected
 
+def distanceDijkstra(catalog, iata1, iata2):
+    search = dj.Dijkstra(catalog['digraph'], iata1)
+    path = dj.pathTo(search, iata2)
+    while not stack.isEmpty(path):
+        edge = stack.pop(path)
+        print(edge['vertexA'] + "-->" +
+            edge['vertexB'] + "costo: " +
+            str(edge['weight']))
+    num = str(dj.distTo(search, iata2))
+    return num
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
