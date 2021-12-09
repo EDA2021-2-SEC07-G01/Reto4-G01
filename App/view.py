@@ -206,7 +206,7 @@ def thread_cycle():
             #destinationCoordinates = input('Ingrese la latidud y longitud de llegada separada por coma: ')
             print("=============== Req No. 3 Answers ===============")
             print("+++ The departure airport in "+departure_city+" is +++")
-            iata1 = input("Ingrese el IATA del primer aeropuerto de interés:")
+            iata1 = input("Ingrese el IATA del primer aeropuerto de interés: ")
             printREQ2(iata1, catalog)
             print("\n+++ The arrival airport in "+destination_city+" is +++")
             iata2 = input("Ingrese el IATA del segundo aeropuerto de interés: ") 
